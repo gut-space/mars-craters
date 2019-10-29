@@ -7,6 +7,13 @@
 2. pip install opencv-python
 3. pip install opencv-wrapper
 
+## Usage
+
+There is nothing useful yet, just a very basic python code that uses OpenCV wrapper to load and display a single sample image.
+
+```console
+python mars.py
+```
 
 ## Bibliography
 
