@@ -5,7 +5,7 @@ Original filename: THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_
 ## Algorithm
 
 0. Mode: Grayscale
-1. Median blur (Radius: 12, Percentile: 66)
+1. Median blur (Radius: 12, Percentile: 66, High precision)
 2. Edge (Algorithm: Gradient, Amount: 1)
 3. Sobel
 

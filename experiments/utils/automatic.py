@@ -7,6 +7,8 @@ def load_recognize_circles_and_display(org_path, preprocess_path, circle_paramet
     img_preprocess = cv2.imread(preprocess_path)
 
     circles = simply_circle_recognition(img_preprocess, circle_parameters)
+    print(circles)
+    print(circles.shape)
     out_img = show_circles(img_org, circles)
 
     if save_path is not None:
