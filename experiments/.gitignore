@@ -1,0 +1,4 @@
+build/
+dist/
+Distutils.egg-info
+env/
