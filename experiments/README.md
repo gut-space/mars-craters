@@ -22,7 +22,7 @@ python setup.py install
 
 ## Orignal images directory
 
-Directory "org" contains original images. Name should be in format: ```[LAYER_NAME]_[LONGITUDE]_[LATITUDE]_[ZOOM_LEVEL]_[COMMENT].[EXTENSION]``` where "LAYER_NAME" is layer name (or unique part if original name is long) from JMARS.
+Directory "org" contains original images. Name should be in format: ```[LAYER_NAME]_[LONGITUDE]_[LATITUDE]_[ZOOM_LEVEL]_[PIXEL_PER_DEGREE]ppd_[COMMENT].[EXTENSION]``` where "LAYER_NAME" is layer name (or unique part if original name is long) from JMARS.
 
 "Longitude" and "Latitude" are coordinate of center of image in ellipsoid coordinate system in notation DDD.DDD\[N/S/W/E\].  
 JMars using confusing method for display coordinates. Latitude 0 is on equator. Above we have positive number and below negative. Longitude has range from 0 to 360 degrees, where on right side of main meridians we count degrees up from 0 and on left side we count degrees down from 360. If you use this method to save coordinates add **JM** prefix before it for example: ```JM67.332_-12.345```. In this coordinate system we don't use parts of world chars (N/S/W/E).

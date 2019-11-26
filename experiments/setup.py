@@ -12,6 +12,7 @@ setup(name='Distutils',
           "opencv-python>=4.1",
           "numpy>=1.17",
           "matplotlib>=3.1",
-          "pylint>=1.7"
+          "pylint>=1.7",
+          "pyshp>=2.1"
       ]
      )
