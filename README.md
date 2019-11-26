@@ -74,6 +74,25 @@ Input image has resolution 2048 pixels per degree.
 
 As result of these steps you get a list of center and radius craters in pixels. Next you need to transform it to meters using PPD and coordinates of image.
 
+## Results
+
+We choose the image from THEMIS Night IR 100m Global Mosaic (v14.0) layer.   
+Center has coordinates: 137.184E, -15.195.  
+Height: 185 km, width: 312 km.  
+Resolution: 2048 pixels per degree.
+
+We assume that our range of craters to detect was craters with radius less than 15 km and depth greater than 0.5 km.
+
+| Radius  | Count (total/selected) | Detected (total/selected) | Acc. (total/selected) |
+| ------- | :--------------------: | :-----------------------: | :-------------------: |
+| All     |        347 / 13        |                   64 / 11 |      0.18 / 0.85      |
+| >= 5 km |         20 / 4         |                     4 / 4 |        0.2 / 1        |
+| < 5 km  |        327 / 9         |                    60 / 7 |      0.18 / 0.78      |
+
+In our range we achieve good accuracy **85%**. We don't have falsy recognition (each our recognition was a crater). 15% recognized craters were outside assumed range.
+
+Crear, big craters were to recognized very good.
+
 ## Wrong ways
 
 During our test we notice that some ideas for preprocess image are wrong.
