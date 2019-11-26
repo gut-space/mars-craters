@@ -41,7 +41,7 @@ Directory "utils" contains useful scripts to use in your algorithm source files.
 
 Each directory in "samples" is single iteration of Mars craters recognition algorithm.
 
-Directory name: ```[MONTH]-[DAY] [HOUR]:[MINUTE] [ACRONYM]``` where "MONTH", "DAY", "HOUR", "MINUTE" contains date of start work under specific sample. Acronym is acronym of author.
+Directory name: ```[MONTH]-[DAY] [HOUR][MINUTE] [ACRONYM]``` where "MONTH", "DAY", "HOUR", "MINUTE" contains date of start work under specific sample. Acronym is acronym of author.
 
 Directory contains:
 
