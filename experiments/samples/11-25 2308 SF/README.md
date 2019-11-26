@@ -14,10 +14,10 @@
 |         1-2 |   55 |            |      20 |     0.36 |
 |         < 1 |  240 |            |      30 |     0.13 |
 
-Total craters in area: 347
-Total recognized craters: 64
-Falsy recognized craters: 0
-Total accuracy: 0.18
+Total craters in area: 347  
+Total recognized craters: 64  
+Falsy recognized craters: 0  
+Total accuracy: 0.18  
 
 ## Subset of craters
 
@@ -36,9 +36,9 @@ Therefore this method is best for recognize craters with radius lower than 15 km
 |       2 - 3 |    3 |            |       2 |     0.66 |
 |         < 2 |    0 |            |         |        - |
 
-Total craters: 13
-Not recognized craters: 2
-Accuracy: 0.85
+Total craters: 13  
+Not recognized craters: 2  
+Accuracy: 0.85  
 
 # Notes
 

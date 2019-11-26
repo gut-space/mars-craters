@@ -54,7 +54,6 @@ Directory contains:
 
 Your readme MUST contains:
 
-* [ ] Original image filename
 * [ ] Preprocessing steps (for example from GIMP) WITH parametr values
 * [ ] The most important constants from source code with description
 * [ ] Notes about result
