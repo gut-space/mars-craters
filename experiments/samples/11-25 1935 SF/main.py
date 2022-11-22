@@ -9,4 +9,4 @@ CIRCLES = (
     (550 , 50, 500)
 )
 
-automatic.load_recognize_circles_and_display(ORG_PATH, PREPROCESS_PATH, CIRCLES, OUTPUT_PATH)
+automatic.load_recognize_circles_and_display(CIRCLES, ORG_PATH, PREPROCESS_PATH, OUTPUT_PATH)
