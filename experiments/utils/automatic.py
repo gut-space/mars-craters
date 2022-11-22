@@ -1,4 +1,5 @@
 import cv2
+import os
 from .circle_recognition import simply_circle_recognition
 from .display import show_circles
 from .export import relative_picture_coordinates_to_degrees, save_csv, save_shapefile
@@ -18,10 +19,23 @@ def load_recognize_circles_and_display(circle_parameters, org_path, preprocess_p
     return circles
 
 def get_meta(path):
+    """Gets meta information from the JMARS filename
+
+    :param path: path to the file (can with with or without dirs)
+    :type path: string
+    :return: structure with width, height, center and ppd (zoom factor)
+    :rtype: int, int, (float, float), int
+    """
     img = cv2.imread(path)
     height, width = img.shape[:2]
 
-    _, lng, lat, _, ppd, *_ = path.split("_")
+    # First, get rid of the dir
+    _, fname = os.path.split(path)
+
+    # Now, get rid of the extension
+    fname, _ = os.path.splitext(fname)
+
+    _, lng, lat, _, ppd, *_ = fname.split("_")
 
     is_jmars = lng.startswith("JM")
     if is_jmars:
