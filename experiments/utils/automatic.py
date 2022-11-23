@@ -5,7 +5,11 @@ from .display import show_circles
 from .export import relative_picture_coordinates_to_degrees, save_csv, save_shapefile
 
 def load_recognize_circles_and_display(circle_parameters, org_path, preprocess_path="input.jpg",  save_path="output.jpg"):
-    img_org = cv2.imread(org_path)
+
+    print(f"Loading file {org_path}")
+
+    # Read the image as greyscale
+    img_org = cv2.imread(org_path, cv2.IMREAD_GRAYSCALE)
     img_preprocess = cv2.imread(preprocess_path)
 
     circles = simply_circle_recognition(img_preprocess, circle_parameters)
