@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 from os import path
 import shutil
 
@@ -16,15 +17,46 @@ CIRCLES = (
     (550 , 50, 500)
 )
 
+def edges_canny(img):
+
+    """ Implements Canny edges detection.
+
+        For details, see: https://docs.opencv.org/3.4/da/d22/tutorial_py_canny.html
+
+    """
+
+    threshold_low = float(100) # first threshold for the hysteresis procedure.
+    threshold_high = float(200) # second threshold for the hysteresis procedure.
+    sobel_aperture_size = 3 # aperture size for the Sobel operator.
+    l2gradient = False # a flag, indicating whether a more accurate, but slower gradient should be used
+
+    # now create an array of the same dimension, but only one channel
+    e = np.zeros((img.shape[0], img.shape[1]))
+
+    # Call the canny image search
+    edges = cv2.Canny(img, threshold_low, threshold_high, e, sobel_aperture_size, l2gradient)
+
+    return edges
+
 def preprocess_file(f: str, fout: str):
 
     # Pretending any preprocessing was done. In fact, just copy over the file.
     print(f"WARNING: Preprocessing is only simulated. Copied file to {f} => {fout}")
+
+
+    img = cv2.imread(f)
+
+    edges = edges_canny(img)
+
+    cv2.imshow('Edges',edges)
+
+    cv2.waitKey(10000)
+
     shutil.copyfile(f, fout)
 
 def show_file(f: str):
     # Load a sample image
-    img = cv2.imread(IMG_EXAMPLE)
+    img = cv2.imread(f)
 
     # Display the image, wait for key and quit
     cv2.imshow('image',img)
@@ -48,7 +80,7 @@ for f in FILES:
     # Skip the preprocessing first and assume the input file is preprocessed
     preprocess_file(fname, input_file)
 
-    craters = automatic.load_recognize_circles_and_display(CIRCLES, fname, input_file, output_file)
-    automatic.export_to_csv_and_shp(craters, meta)
+    #craters = automatic.load_recognize_circles_and_display(CIRCLES, fname, input_file, output_file)
+    #automatic.export_to_csv_and_shp(craters, meta)
 
-    show_file(IMG_EXAMPLE)
+    #show_file(input_file)
