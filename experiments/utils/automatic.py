@@ -60,5 +60,7 @@ def export_to_csv_and_shp(craters, img_meta, output_path="output"):
     degree_craters = relative_picture_coordinates_to_degrees(
         craters, img_meta['center'], img_meta['width'], img_meta['height'], img_meta['ppd']
     )
+    print(f"Saving detected craters to {output_path}.(csv,shp)")
+
     save_csv(degree_craters, output_path + ".csv")
     save_shapefile(degree_craters, output_path + ".shp")

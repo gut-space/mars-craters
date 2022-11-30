@@ -55,10 +55,10 @@ def preprocess_edges_sobel(img):
 
 def preprocess_median_blur(img, blur_radius):
 
+    print(f"Running median blus with blur radius {blur_radius}.")
+
     # blur_radius - a good values are between 5 and 15
     return cv2.medianBlur(img, blur_radius)
-
-
 
 def preprocess_file(f: str, step1_file: str, step2_file: str, args):
 
@@ -108,7 +108,7 @@ def show_img(img):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser("gut-space-craters")
-    parser.add_argument("--blur", type=int, help='Specifies median blur radius.', default=5)
+    parser.add_argument("--blur", type=int, help='Specifies median blur radius.', default=13)
     parser.add_argument("--edges", type=str, help='Specifies the edge detection algorithm (sobel, canny, none)', default='sobel')
     parser.add_argument('-f','--file', type=str, nargs='+', action='append', help='list of PNG or JPEG files to process.')
     parser.add_argument('-s','--save-steps', type=bool, help='Specifies if intermediate steps should be saved', default=True)
@@ -133,13 +133,13 @@ if __name__ == '__main__':
         step1_file = fname_base + "_1_blur.jpg"
         step2_file = fname_base + "_2_edges.jpg"
         step3_file = fname_base + "_3_craters.jpg"
-        step4_file = fname_base + "_4_craters.shp"
+        step4_file = fname_base + "_4_craters"
 
         # Skip the preprocessing first and assume the input file is preprocessed
         preprocess_file(fname, step1_file, step2_file, args)
 
         craters = automatic.load_recognize_circles_and_display(CIRCLES, fname, step2_file, step3_file)
-        automatic.export_to_csv_and_shp(craters, meta)
+        automatic.export_to_csv_and_shp(craters, meta, output_path = step4_file)
 
         if not args.save_steps:
             for f in [step1_file, step2_file]:
