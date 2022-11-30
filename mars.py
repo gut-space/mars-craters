@@ -81,6 +81,7 @@ def preprocess_file(f: str, step1_file: str, step2_file: str, args):
         img3 = preprocess_edges_canny(img2)
     elif args.edges == 'none':
         print("Skipping edges detection.")
+        img3 = img2
     else:
         print(f"ERROR: Invalid edge detection algorithm specified: {args.edges}")
 
