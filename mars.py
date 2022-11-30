@@ -9,15 +9,15 @@ IMG_EXAMPLE = "./img/P17_007703_2313_XN_51N345W.jpeg"
 
 DATA_DIR = "./experiments/org"
 
-FILES = [ "THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_256_2048ppd.jpg" ,
-          "THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_256_2048ppd_2_with_craters_max_diameter_30_km_min_crater_depth_0.5_km.jpg" ]
+FILES = [ "THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_256_2048ppd.jpg" ]
+       #, "THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_256_2048ppd_2_with_craters_max_diameter_30_km_min_crater_depth_0.5_km.jpg" ]
 
 CIRCLES = (
     (150, 10, 50),
     (550 , 50, 500)
 )
 
-def edges_canny(img):
+def preprocess_edges_canny(img):
 
     """ Implements Canny edges detection.
 
@@ -38,26 +38,53 @@ def edges_canny(img):
 
     return edges
 
-def preprocess_file(f: str, fout: str):
+def preprocess_edges_sobel(img):
 
-    # Pretending any preprocessing was done. In fact, just copy over the file.
-    print(f"WARNING: Preprocessing is only simulated. Copied file to {f} => {fout}")
+    grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
+    grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+
+    abs_grad_x = cv2.convertScaleAbs(grad_x)
+    abs_grad_y = cv2.convertScaleAbs(grad_y)
+
+    grad = cv2.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0)
+
+    return grad
+
+def preprocess_median_blur(img, blur_radius):
+
+    # blur_radius - a good values are between 5 and 15
+    return cv2.medianBlur(img, blur_radius)
 
 
-    img = cv2.imread(f)
 
-    edges = edges_canny(img)
+def preprocess_file(f: str, step1_file: str, step2_file: str):
 
-    cv2.imshow('Edges',edges)
+    img = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
+
+    median_blur = 5 # smoothes an image using the median filter with the ksize×ksize aperture, must be odd number
+
+    img2 = preprocess_median_blur(img, median_blur)
+
+    cv2.imwrite(step1_file, img2)
+    cv2.imshow('Edges', img2)
+    cv2.waitKey(10000)
+    print(f"3. Median blur (step 1) stored in {step1_file}")
+
+    # img3 = preprocess_edges_canny(img2)
+    img3 = preprocess_edges_sobel(img2)
+
+    cv2.imwrite(step2_file, img3)
+    print(f"4. Edge detection (step 2) stored in {step2_file}")
+    cv2.imshow('Edges', img3)
 
     cv2.waitKey(10000)
-
-    shutil.copyfile(f, fout)
 
 def show_file(f: str):
     # Load a sample image
     img = cv2.imread(f)
+    show_img(img)
 
+def show_img(img):
     # Display the image, wait for key and quit
     cv2.imshow('image',img)
     cv2.waitKey(0)
@@ -72,13 +99,11 @@ for f in FILES:
     meta = automatic.get_meta(fname)
     print(f"2. Metadata: {meta}")
 
-    input_file = fname_base + "_input.jpg"
-    output_file = fname_base + "_out.jpg"
-
-    print(f"3. input_file={input_file}, output_file={output_file}")
+    step1_file = fname_base + "_1_blur.jpg"
+    step2_file = fname_base + "_2_edges.jpg"
 
     # Skip the preprocessing first and assume the input file is preprocessed
-    preprocess_file(fname, input_file)
+    preprocess_file(fname, step1_file, step2_file)
 
     #craters = automatic.load_recognize_circles_and_display(CIRCLES, fname, input_file, output_file)
     #automatic.export_to_csv_and_shp(craters, meta)
