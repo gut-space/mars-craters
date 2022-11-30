@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-from os import path
-import shutil
+from os import path, remove
+import argparse
 
 from utils import automatic
 
@@ -25,6 +25,8 @@ def preprocess_edges_canny(img):
 
     """
 
+    print("Running Canny edge detection.")
+
     threshold_low = float(100) # first threshold for the hysteresis procedure.
     threshold_high = float(200) # second threshold for the hysteresis procedure.
     sobel_aperture_size = 3 # aperture size for the Sobel operator.
@@ -39,6 +41,7 @@ def preprocess_edges_canny(img):
     return edges
 
 def preprocess_edges_sobel(img):
+    print("Running sobel edge detection.")
 
     grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
     grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
@@ -57,27 +60,36 @@ def preprocess_median_blur(img, blur_radius):
 
 
 
-def preprocess_file(f: str, step1_file: str, step2_file: str):
+def preprocess_file(f: str, step1_file: str, step2_file: str, args):
 
     img = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
 
-    median_blur = 5 # smoothes an image using the median filter with the ksize×ksize aperture, must be odd number
+    # smoothes an image using the median filter with the ksize×ksize aperture, must be odd number
+    median_blur = args.blur
 
     img2 = preprocess_median_blur(img, median_blur)
 
     cv2.imwrite(step1_file, img2)
-    cv2.imshow('Edges', img2)
-    cv2.waitKey(10000)
+    if args.display_steps:
+        cv2.imshow('Edges', img2)
+        cv2.waitKey(10000)
     print(f"3. Median blur (step 1) stored in {step1_file}")
 
-    # img3 = preprocess_edges_canny(img2)
-    img3 = preprocess_edges_sobel(img2)
+    if args.edges == 'sobel':
+        img3 = preprocess_edges_sobel(img2)
+    elif args.edges == 'canny':
+        img3 = preprocess_edges_canny(img2)
+    elif args.edges == 'none':
+        print("Skipping edges detection.")
+    else:
+        print(f"ERROR: Invalid edge detection algorithm specified: {args.edges}")
 
     cv2.imwrite(step2_file, img3)
-    print(f"4. Edge detection (step 2) stored in {step2_file}")
-    cv2.imshow('Edges', img3)
 
-    cv2.waitKey(10000)
+    print(f"4. Edge detection (step 2) stored in {step2_file}")
+    if args.display_steps:
+        cv2.imshow('Edges', img3)
+        cv2.waitKey(10000)
 
 def show_file(f: str):
     # Load a sample image
@@ -90,22 +102,45 @@ def show_img(img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-for f in FILES:
-    fname = path.join(DATA_DIR, f)
-    print(f"1. Processing file {fname}")
+### Main section starts here
 
-    fname_base, _ = path.splitext(fname)
+if __name__ == '__main__':
 
-    meta = automatic.get_meta(fname)
-    print(f"2. Metadata: {meta}")
+    parser = argparse.ArgumentParser("gut-space-craters")
+    parser.add_argument("--blur", type=int, help='Specifies median blur radius.', default=5)
+    parser.add_argument("--edges", type=str, help='Specifies the edge detection algorithm (sobel, canny, none)', default='sobel')
+    parser.add_argument('-f','--file', type=str, nargs='+', action='append', help='list of PNG or JPEG files to process.')
+    parser.add_argument('-s','--save-steps', type=bool, help='Specifies if intermediate steps should be saved', default=True)
+    parser.add_argument('-d','--display-steps', type=bool, help='Specifies if intermediate steps should shown', default=False)
+    args = parser.parse_args()
 
-    step1_file = fname_base + "_1_blur.jpg"
-    step2_file = fname_base + "_2_edges.jpg"
+    if args.file is None:
+        print(f"No files specified, using detault {FILES}")
+        args.file = FILES
 
-    # Skip the preprocessing first and assume the input file is preprocessed
-    preprocess_file(fname, step1_file, step2_file)
+    print(f"Running with the following parameters: {args}")
 
-    #craters = automatic.load_recognize_circles_and_display(CIRCLES, fname, input_file, output_file)
-    #automatic.export_to_csv_and_shp(craters, meta)
+    for f in FILES:
+        fname = path.join(DATA_DIR, f)
+        print(f"1. Processing file {fname}")
 
-    #show_file(input_file)
+        fname_base, _ = path.splitext(fname)
+
+        meta = automatic.get_meta(fname)
+        print(f"2. Metadata: {meta}")
+
+        step1_file = fname_base + "_1_blur.jpg"
+        step2_file = fname_base + "_2_edges.jpg"
+        step3_file = fname_base + "_3_craters.jpg"
+        step4_file = fname_base + "_4_craters.shp"
+
+        # Skip the preprocessing first and assume the input file is preprocessed
+        preprocess_file(fname, step1_file, step2_file, args)
+
+        craters = automatic.load_recognize_circles_and_display(CIRCLES, fname, step2_file, step3_file)
+        automatic.export_to_csv_and_shp(craters, meta)
+
+        if not args.save_steps:
+            for f in [step1_file, step2_file]:
+                if path.exists(f):
+                    remove(f)
