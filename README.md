@@ -31,7 +31,9 @@ options:
                         Sobel: size of the kernel, default=3
 ```
 
-## Algorithm overview
+## Automated Algorithm Overview
+
+_A semi-automated tool was developed in 2022._
 
 The initial image is expected to have naming convention used by JMARS app. Some data (long,lat of the image, pixels per degree) is inferred from the name. If you use a different name, make sure you specify the image geometry using `--geometry` option.
 
@@ -48,6 +50,10 @@ In addition to that, `--save-steps true` can be specified to instruct the softwa
 The input files can be specified using `-f`. It's possible to specify multiple files using `-f` multiple times.
 
 If detection is successful, the detected craters are written as CSV file and also as SHP file that can be loaded into QGis or other georeferencing software.
+
+## Installation 
+
+See [installation procedure](doc/install.md).
 
 ## How to get data
 
@@ -78,7 +84,9 @@ Probably you should to select area near equator. The farther than equator meteor
 
 For explore the data we used JMARS. Next JMARS image was preprocess using GIMP. Then we use Python and OpenCV to perform circle detection and export output image and shapefile with result. At the end we use QGIS to compare recognized craters with real (crater database is provided by JMARS).
 
-## Algorithm
+## Manual Algorithm
+
+_This section describes the manual steps used in 2019._
 
 Input image has resolution 2048 pixels per degree.
 
