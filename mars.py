@@ -18,7 +18,7 @@ CIRCLES = (
     (550 , 50, 500)
 )
 
-def preprocess_edges_canny(img):
+def preprocess_edges_canny(img, threshold_low = 100.0, threshold_high = 200.0, sobel_aperture_size = 3):
 
     """ Implements Canny edges detection.
 
@@ -28,9 +28,6 @@ def preprocess_edges_canny(img):
 
     print("Running Canny edge detection.")
 
-    threshold_low = float(100) # first threshold for the hysteresis procedure.
-    threshold_high = float(200) # second threshold for the hysteresis procedure.
-    sobel_aperture_size = 3 # aperture size for the Sobel operator.
     l2gradient = False # a flag, indicating whether a more accurate, but slower gradient should be used
 
     # now create an array of the same dimension, but only one channel
@@ -41,11 +38,11 @@ def preprocess_edges_canny(img):
 
     return edges
 
-def preprocess_edges_sobel(img):
-    print("Running sobel edge detection.")
+def preprocess_edges_sobel(img, ksize=3):
+    print("Running Sobel edge detection.")
 
-    grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
-    grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+    grad_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=ksize)
+    grad_y = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=ksize)
 
     abs_grad_x = cv2.convertScaleAbs(grad_x)
     abs_grad_y = cv2.convertScaleAbs(grad_y)
@@ -67,6 +64,10 @@ def preprocess_file(f: str, step1_file: str, step2_file: str, args):
 
     # smoothes an image using the median filter with the ksize×ksize aperture, must be odd number
     median_blur = args.blur
+    threshold_low = args.canny_threshold_low # first threshold for the hysteresis procedure.
+    threshold_high = args.canny_threshold_high # second threshold for the hysteresis procedure.
+    canny_aperture_size = args.canny_aperture_size # aperture size for the Sobel operator.
+    sobel_ksize = args.sobel_kernel_size
 
     img2 = preprocess_median_blur(img, median_blur)
 
@@ -77,9 +78,9 @@ def preprocess_file(f: str, step1_file: str, step2_file: str, args):
     print(f"3. Median blur (step 1) stored in {step1_file}")
 
     if args.edges == 'sobel':
-        img3 = preprocess_edges_sobel(img2)
+        img3 = preprocess_edges_sobel(img2, sobel_ksize)
     elif args.edges == 'canny':
-        img3 = preprocess_edges_canny(img2)
+        img3 = preprocess_edges_canny(img2, threshold_low=threshold_low, threshold_high=threshold_high, sobel_aperture_size=canny_aperture_size)
     elif args.edges == 'none':
         print("Skipping edges detection.")
         img3 = img2
@@ -110,11 +111,20 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser("gut-space-craters")
     parser.add_argument("--blur", type=int, help='Specifies median blur radius.', default=13)
-    parser.add_argument("--edges", type=str, help='Specifies the edge detection algorithm (sobel, canny, none)', default='sobel')
+    parser.add_argument("--edges", type=str, help='Specifies the edge detection algorithm (sobel, canny, none)', default='canny')
     parser.add_argument('-f','--file', type=str, nargs='+', action='append', help='list of PNG or JPEG files to process.')
     parser.add_argument('-s','--save-steps', type=bool, help='Specifies if intermediate steps should be saved', default=True)
     parser.add_argument('-d','--display-steps', type=bool, help='Specifies if intermediate steps should shown', default=False)
     parser.add_argument('--geometry', type=str, help='Specifies image geometry (longitude,lattitude,pixels-per-degree), will be determined automatically from the filename if THEMIS naming convention is followed')
+
+    # Canny edge detection parameters:
+    parser.add_argument('--canny-threshold-low', type=float, help="Canny: First threshold for hysteresis procedure, default=100.0", default=100.0)
+    parser.add_argument('--canny-threshold-high', type=float, help="Canny: Second threshold for hysteresis procedure, default=200.0", default=200.0)
+    parser.add_argument('--canny-aperture-size', type=int, help="Canny: aperture size for the Sobel operator, default=3", default=3)
+
+    # Canny edge detection parameters:
+    parser.add_argument('--sobel-kernel-size', type=int, help="Sobel: size of the kernel, default=3", default=3)
+
     args = parser.parse_args()
 
     if args.file is None:
