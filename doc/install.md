@@ -8,5 +8,5 @@ Steps necessary to run this software
     .bat in the venv/bin/ directory)
   - pip install --upgrade pip (upgrades pip)
 2. pip install opencv-python matplotlib pyshp
-3. export PYTHONPATH=.:./experiments
+3. (optional) export PYTHONPATH=.:./experiments
 4. run: python ./mars.py
