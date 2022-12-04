@@ -2,15 +2,16 @@ import cv2
 import numpy as np
 from os import path, remove
 import argparse
+import sys
+
+sys.path.append('./experiments')
 
 from utils import automatic
 
-IMG_EXAMPLE = "./img/P17_007703_2313_XN_51N345W.jpeg"
+DATA_DIR = "./experiments/org/"
 
-DATA_DIR = "./experiments/org"
-
-FILES = [ "THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_256_2048ppd.jpg" ]
-       #, "THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_256_2048ppd_2_with_craters_max_diameter_30_km_min_crater_depth_0.5_km.jpg" ]
+FILES = [ DATA_DIR + "THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_256_2048ppd.jpg",
+          DATA_DIR + "THEMIS Night IR 100m Global Mosaic (v14.0)_JM137.184_-15.195_256_2048ppd_2_with_craters_max_diameter_30_km_min_crater_depth_0.5_km.jpg" ]
 
 CIRCLES = (
     (150, 10, 50),
@@ -113,21 +114,28 @@ if __name__ == '__main__':
     parser.add_argument('-f','--file', type=str, nargs='+', action='append', help='list of PNG or JPEG files to process.')
     parser.add_argument('-s','--save-steps', type=bool, help='Specifies if intermediate steps should be saved', default=True)
     parser.add_argument('-d','--display-steps', type=bool, help='Specifies if intermediate steps should shown', default=False)
+    parser.add_argument('--geometry', type=str, help='Specifies image geometry (longitude,lattitude,pixels-per-degree), will be determined automatically from the filename if THEMIS naming convention is followed')
     args = parser.parse_args()
 
     if args.file is None:
-        print(f"No files specified, using detault {FILES}")
+        print(f"No files specified, using default {FILES}")
         args.file = FILES
+    else:
+        # argparse has an odd notation. It returns list of lists of strings if
+        # repeated arguments are allowed (as is the case for -f). Need to get
+        # rid of inner lists.
+        args.file = list(map(lambda a: a[0], args.file))
 
     print(f"Running with the following parameters: {args}")
 
-    for f in FILES:
-        fname = path.join(DATA_DIR, f)
+    for f in args.file:
+        #fname = path.join(DATA_DIR, f)
+        fname = f
         print(f"1. Processing file {fname}")
 
         fname_base, _ = path.splitext(fname)
 
-        meta = automatic.get_meta(fname)
+        meta = automatic.get_meta(fname, args.geometry)
         print(f"2. Metadata: {meta}")
 
         step1_file = fname_base + "_1_blur.jpg"

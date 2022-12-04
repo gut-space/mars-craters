@@ -22,7 +22,7 @@ def load_recognize_circles_and_display(circle_parameters, org_path, preprocess_p
 
     return circles
 
-def get_meta(path):
+def get_meta(path, geometry):
     """Gets meta information from the JMARS filename
 
     :param path: path to the file (can with with or without dirs)
@@ -33,28 +33,49 @@ def get_meta(path):
     img = cv2.imread(path)
     height, width = img.shape[:2]
 
-    # First, get rid of the dir
-    _, fname = os.path.split(path)
+    try:
+        # First, get rid of the dir
+        _, fname = os.path.split(path)
 
-    # Now, get rid of the extension
-    fname, _ = os.path.splitext(fname)
+        # Now, get rid of the extension
+        fname, _ = os.path.splitext(fname)
 
-    _, lng, lat, _, ppd, *_ = fname.split("_")
+        _, lng, lat, _, ppd, *_ = fname.split("_")
 
-    is_jmars = lng.startswith("JM")
-    if is_jmars:
-        lng = lng.lstrip("JM")
+        is_jmars = lng.startswith("JM")
+        if is_jmars:
+            lng = lng.lstrip("JM")
 
-    ppd = int(ppd.rstrip("ppd"))
-    lng = float(lng)
-    lat = float(lat)
+        ppd = int(ppd.rstrip("ppd"))
+        lng = float(lng)
+        lat = float(lat)
 
-    return {
-        "width": width,
-        "height": height,
-        "center": (lng, lat),
-        "ppd": ppd
-    }
+        return {
+            "width": width,
+            "height": height,
+            "center": (lng, lat),
+            "ppd": ppd
+        }
+
+    except:
+        print(f"Parsing metadata from filename failed. Trying to parse geometry ({geometry})")
+
+        try:
+            lng,lat,ppd=geometry.split(",")
+            return {
+                "width": width,
+                "height": height,
+                "center": (float(lng), float(lat)),
+                "ppd": int(ppd)
+            }
+        except:
+            print("Metadata from filename failed, geometry not specified, using dummy defaults.")
+            return {
+                "width": width,
+                "height": height,
+                "center": (float(0.0), float(0.0)),
+                "ppd": int(1024)
+            }
 
 def export_to_csv_and_shp(craters, img_meta, output_path="output"):
     degree_craters = relative_picture_coordinates_to_degrees(
