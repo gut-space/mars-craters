@@ -25,10 +25,8 @@ options:
                         Canny: First threshold for hysteresis procedure, default=100.0
   --canny-threshold-high CANNY_THRESHOLD_HIGH
                         Canny: Second threshold for hysteresis procedure, default=200.0
-  --canny-aperture-size CANNY_APERTURE_SIZE
-                        Canny: aperture size for the Sobel operator, default=3
-  --sobel-kernel-size SOBEL_KERNEL_SIZE
-                        Sobel: size of the kernel, default=3
+  --sobel-aperture-size SOBEL_APERTURE_SIZE
+                        Sobel/Canny: aperture size for the Sobel operator, default=3
 ```
 
 ## Automated Algorithm Overview
@@ -41,9 +39,9 @@ First step is to blur data. Median blur is used for this purpose. This step has 
 
 Second step is to detect edges. Two algorithms are implemented: Sobel and Canny. It's also possible to disable detection altogether if the input image already has edges detected. The algorthim is selected using `--edges`` parameter.
 
-For Canny (which is the default), there are three parameters available. First two `--canny-threshold-low` and `--canny-threshold-high` specify low and high threshold for the hysteresis procedure. Those are floating point values. The third argument `--canny-aperture-size` defines the aperture size used for Sobel operator (yes, Sobel. Canny uses Sobel as part of its processing).
+For Canny (which is the default), there are three parameters available. First two `--canny-threshold-low` and `--canny-threshold-high` specify low and high threshold for the hysteresis procedure. Those are floating point values. The third argument `--sobel-aperture-size` defines the aperture size used for Sobel operator (yes, Sobel. Canny uses Sobel as part of its processing).
 
-For Sobel, the aperture size is set using `--sobel-kernel-size` parameter.
+For Sobel, the aperture size is set using `--sobel-aperture-size` parameter.
 
 In addition to that, `--save-steps true` can be specified to instruct the software to write intermediate steps, after each processing. This is useful for investigating efficiency of each step. Another assisting option is `--display-steps true`, which pauses and displays each step result.
 
@@ -51,7 +49,7 @@ The input files can be specified using `-f`. It's possible to specify multiple f
 
 If detection is successful, the detected craters are written as CSV file and also as SHP file that can be loaded into QGis or other georeferencing software.
 
-## Installation 
+## Installation
 
 See [installation procedure](doc/install.md).
 
@@ -76,9 +74,9 @@ During filtration you should remember that not whole edge will be bright for eac
 
 ## Selected area
 
-Presented method search for specific subset of craters. You should select flat terrain without mountains, because when terrain is higher than it warm up more and has stronger bright in infrared.  
-Area shouldn't contains too big craters. Algorithm cannot recognize it.  And craters shouldn't be too thick. We assume that exists space between two craters.  
-Probably you should to select area near equator. The farther than equator meteorite hit at greater angle and impact crater may be more ellipsoidal (it decrease accuracy of circle detect algorithm).  
+Presented method search for specific subset of craters. You should select flat terrain without mountains, because when terrain is higher than it warm up more and has stronger bright in infrared.
+Area shouldn't contains too big craters. Algorithm cannot recognize it.  And craters shouldn't be too thick. We assume that exists space between two craters.
+Probably you should to select area near equator. The farther than equator meteorite hit at greater angle and impact crater may be more ellipsoidal (it decrease accuracy of circle detect algorithm).
 
 ## Tools
 
@@ -90,10 +88,10 @@ _This section describes the manual steps used in 2019._
 
 Input image has resolution 2048 pixels per degree.
 
-1. Convert image to one band Grayscale  
+1. Convert image to one band Grayscale
    THEMIS mosaic is already in  grayscale but JMARS export it to JPEG which has RGB data.
-2. Blur the image using Median Blur  
-   We need to blur image to remove noises (from JPEG compression) and small geometric noises (small bright areas). We noticed that median blur is better then Gaussian for it, because it stronger blur small objects than bigger (for example craters).  
+2. Blur the image using Median Blur
+   We need to blur image to remove noises (from JPEG compression) and small geometric noises (small bright areas). We noticed that median blur is better then Gaussian for it, because it stronger blur small objects than bigger (for example craters).
    We used parameters:
 
    * Neighborhood: Circle
@@ -101,18 +99,18 @@ Input image has resolution 2048 pixels per degree.
    * Percentile: 66
    * High precision enabled
 
-   Too small radius don't remove geometric noises, too big remove small craters.  
-   You need adjust the radius for you resolution. Percentile should be universal.  
+   Too small radius don't remove geometric noises, too big remove small craters.
+   You need adjust the radius for you resolution. Percentile should be universal.
    Neighborhood "circle" has minimal better result than other.
 
-3. Detect edges using Edge GIMP method  
-   This step should to remove background pixels and keep only crater and hills. The best if this step assign higher value for crater edge pixels and lower for other edges.  
+3. Detect edges using Edge GIMP method
+   This step should to remove background pixels and keep only crater and hills. The best if this step assign higher value for crater edge pixels and lower for other edges.
    We used parameters:
 
    * Algorithm: Gradient
    * Amount: 1
 
-   We test all available algorithm. Gradient and Laplace are useful for us. As you can read in documentation "Gradient" return "Edge thinner, less contrasted and more blurred than Sobel". But we notice that it the width of detected line is higher for crater edges then other edges.  
+   We test all available algorithm. Gradient and Laplace are useful for us. As you can read in documentation "Gradient" return "Edge thinner, less contrasted and more blurred than Sobel". But we notice that it the width of detected line is higher for crater edges then other edges.
    Amount value is minimal. It return high-contrasted image with thin edges.
 
 4. Detect edges using Sobel method
@@ -120,7 +118,7 @@ Input image has resolution 2048 pixels per degree.
 
 5. Detect circles
    We use a Hough Circle Transform with Hough Gradient detection. We set:
-   
+
    * inverse ratio resolution: 0.9
    * upper threshold for the internal Canny edge detector (param1): 20
    * threshold for center detection (param2): 30
@@ -134,9 +132,9 @@ As result of these steps you get a list of center and radius craters in pixels. 
 
 ## Results
 
-We choose the image from THEMIS Night IR 100m Global Mosaic (v14.0) layer.   
-Center has coordinates: 137.184E, -15.195.  
-Height: 185 km, width: 312 km.  
+We choose the image from THEMIS Night IR 100m Global Mosaic (v14.0) layer.
+Center has coordinates: 137.184E, -15.195.
+Height: 185 km, width: 312 km.
 Resolution: 2048 pixels per degree.
 
 We assume that our range of craters to detect was craters with radius less than 15 km and depth greater than 0.5 km.

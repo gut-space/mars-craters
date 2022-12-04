@@ -66,8 +66,7 @@ def preprocess_file(f: str, step1_file: str, step2_file: str, args):
     median_blur = args.blur
     threshold_low = args.canny_threshold_low # first threshold for the hysteresis procedure.
     threshold_high = args.canny_threshold_high # second threshold for the hysteresis procedure.
-    canny_aperture_size = args.canny_aperture_size # aperture size for the Sobel operator.
-    sobel_ksize = args.sobel_kernel_size
+    sobel_aperture_size = args.sobel_aperture_size # aperture size for the Sobel operator.
 
     img2 = preprocess_median_blur(img, median_blur)
 
@@ -78,9 +77,9 @@ def preprocess_file(f: str, step1_file: str, step2_file: str, args):
     print(f"3. Median blur (step 1) stored in {step1_file}")
 
     if args.edges == 'sobel':
-        img3 = preprocess_edges_sobel(img2, sobel_ksize)
+        img3 = preprocess_edges_sobel(img2, sobel_aperture_size)
     elif args.edges == 'canny':
-        img3 = preprocess_edges_canny(img2, threshold_low=threshold_low, threshold_high=threshold_high, sobel_aperture_size=canny_aperture_size)
+        img3 = preprocess_edges_canny(img2, threshold_low=threshold_low, threshold_high=threshold_high, sobel_aperture_size=sobel_aperture_size)
     elif args.edges == 'none':
         print("Skipping edges detection.")
         img3 = img2
@@ -115,15 +114,13 @@ if __name__ == '__main__':
     parser.add_argument('-f','--file', type=str, nargs='+', action='append', help='list of PNG or JPEG files to process.')
     parser.add_argument('-s','--save-steps', type=bool, help='Specifies if intermediate steps should be saved', default=True)
     parser.add_argument('-d','--display-steps', type=bool, help='Specifies if intermediate steps should shown', default=False)
-    parser.add_argument('--geometry', type=str, help='Specifies image geometry (longitude,lattitude,pixels-per-degree), will be determined automatically from the filename if THEMIS naming convention is followed')
+    parser.add_argument('--geometry', type=str, help='Specifies image geometry (longitude,latitude,pixels-per-degree), will be determined automatically from the filename if THEMIS naming convention is followed')
 
     # Canny edge detection parameters:
     parser.add_argument('--canny-threshold-low', type=float, help="Canny: First threshold for hysteresis procedure, default=100.0", default=100.0)
     parser.add_argument('--canny-threshold-high', type=float, help="Canny: Second threshold for hysteresis procedure, default=200.0", default=200.0)
-    parser.add_argument('--canny-aperture-size', type=int, help="Canny: aperture size for the Sobel operator, default=3", default=3)
 
-    # Canny edge detection parameters:
-    parser.add_argument('--sobel-kernel-size', type=int, help="Sobel: size of the kernel, default=3", default=3)
+    parser.add_argument('--sobel-aperture-size', type=int, help="Sobel/Canny: aperture size for the Sobel operator, default=3", default=3)
 
     args = parser.parse_args()
 
