@@ -1,4 +1,54 @@
 # Mars Craters Project
+
+
+## Interface overview
+
+This software now provides a command-line interface:
+
+```shell
+$ python ./mars.py --help
+usage: gut-space-craters [-h] [--blur BLUR] [--edges EDGES] [-f FILE [FILE ...]] [-s SAVE_STEPS] [-d DISPLAY_STEPS] [--geometry GEOMETRY] [--canny-threshold-low CANNY_THRESHOLD_LOW]
+                         [--canny-threshold-high CANNY_THRESHOLD_HIGH] [--canny-aperture-size CANNY_APERTURE_SIZE] [--sobel-kernel-size SOBEL_KERNEL_SIZE]
+
+options:
+  -h, --help            show this help message and exit
+  --blur BLUR           Specifies median blur radius.
+  --edges EDGES         Specifies the edge detection algorithm (sobel, canny, none)
+  -f FILE [FILE ...], --file FILE [FILE ...]
+                        list of PNG or JPEG files to process.
+  -s SAVE_STEPS, --save-steps SAVE_STEPS
+                        Specifies if intermediate steps should be saved
+  -d DISPLAY_STEPS, --display-steps DISPLAY_STEPS
+                        Specifies if intermediate steps should shown
+  --geometry GEOMETRY   Specifies image geometry (longitude,lattitude,pixels-per-degree), will be determined automatically from the filename if THEMIS naming convention is followed
+  --canny-threshold-low CANNY_THRESHOLD_LOW
+                        Canny: First threshold for hysteresis procedure, default=100.0
+  --canny-threshold-high CANNY_THRESHOLD_HIGH
+                        Canny: Second threshold for hysteresis procedure, default=200.0
+  --canny-aperture-size CANNY_APERTURE_SIZE
+                        Canny: aperture size for the Sobel operator, default=3
+  --sobel-kernel-size SOBEL_KERNEL_SIZE
+                        Sobel: size of the kernel, default=3
+```
+
+## Algorithm overview
+
+The initial image is expected to have naming convention used by JMARS app. Some data (long,lat of the image, pixels per degree) is inferred from the name. If you use a different name, make sure you specify the image geometry using `--geometry` option.
+
+First step is to blur data. Median blur is used for this purpose. This step has one parameter ``--blur`` that specifies the blur radius. Default value is 13. It must be odd integer.
+
+Second step is to detect edges. Two algorithms are implemented: Sobel and Canny. It's also possible to disable detection altogether if the input image already has edges detected. The algorthim is selected using `--edges`` parameter.
+
+For Canny (which is the default), there are three parameters available. First two `--canny-threshold-low` and `--canny-threshold-high` specify low and high threshold for the hysteresis procedure. Those are floating point values. The third argument `--canny-aperture-size` defines the aperture size used for Sobel operator (yes, Sobel. Canny uses Sobel as part of its processing).
+
+For Sobel, the aperture size is set using `--sobel-kernel-size` parameter.
+
+In addition to that, `--save-steps true` can be specified to instruct the software to write intermediate steps, after each processing. This is useful for investigating efficiency of each step. Another assisting option is `--display-steps true`, which pauses and displays each step result.
+
+The input files can be specified using `-f`. It's possible to specify multiple files using `-f` multiple times.
+
+If detection is successful, the detected craters are written as CSV file and also as SHP file that can be loaded into QGis or other georeferencing software.
+
 ## How to get data
 
 You can fetch the Mars data from different sources. NASA provides some WMTS and WMS services.
